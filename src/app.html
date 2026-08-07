@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Ember</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: var(--app-font, 'Poppins', 'Segoe UI', system-ui, sans-serif);
+  }
+  body {
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ---------- MINI VIEW ---------- */
+  #mini {
+    position: relative;
+    -webkit-app-region: drag;
+    height: 100%;
+    box-sizing: border-box;
+    background-size: 220% 220%;
+    animation: shimmer 9s ease infinite;
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+  }
+  .nav-arrow {
+    -webkit-app-region: no-drag;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.28);
+    color: white;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease, background 0.12s ease;
+  }
+  #mini:hover .nav-arrow {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .nav-arrow.left { left: 8px; }
+  .nav-arrow.right { right: 8px; }
+  .nav-arrow:hover {
+    background: rgba(255,255,255,0.4);
+    transform: translateY(-50%) scale(1.12);
+  }
+  .nav-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .controls {
+    -webkit-app-region: no-drag;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .icon-btn {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.28);
+    color: white;
+    width: 25px;
+    height: 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+  .icon-btn:hover {
+    background: rgba(255,255,255,0.38);
+    transform: translateY(-1px) scale(1.05);
+  }
+  .icon-btn:active { transform: translateY(0) scale(0.96); }
+  #nextBtn { font-size: 14px; }
+  #settingsBtn { font-size: 13px; }
+  #phrase {
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    letter-spacing: 0.2px;
+  }
+
+  /* ---------- FULL / SETTINGS VIEW ---------- */
+  #full {
+    display: none;
+    height: 100%;
+    padding: 22px 26px;
+    overflow-y: auto;
+  }
+  .full-header {
+    -webkit-app-region: drag;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .full-header h1 {
+    -webkit-app-region: no-drag;
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0;
+  }
+  .full-header .icon-btn {
+    -webkit-app-region: no-drag;
+  }
+  .back-btn {
+    -webkit-app-region: no-drag;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: 20px;
+    padding: 7px 14px 7px 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+  }
+  .back-btn:active {
+    transform: translateY(0);
+  }
+  .back-arrow {
+    font-size: 14px;
+  }
+  section {
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  section h2 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 0 0 12px;
+  }
+  .row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  input[type=text], select {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    border-width: 1px;
+    border-style: solid;
+  }
+  button.action {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button.secondary {
+    border: none;
+    border-radius: 7px;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  #list { max-height: 220px; overflow-y: auto; }
+  .phrase-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    font-size: 13px;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+  }
+  .phrase-item span { flex: 1; margin-right: 8px; }
+  label { font-size: 12px; display: block; margin-bottom: 5px; font-weight: 600; opacity: 0.75; }
+  .settings-row { display: flex; gap: 16px; }
+  .settings-col { flex: 1; }
+  .checkbox-row { display: flex; align-items: center; gap: 7px; margin-top: 10px; font-size: 13px; }
+
+  .theme-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .theme-swatch {
+    width: 54px;
+    height: 54px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 4px;
+  }
+  .theme-swatch.selected {
+    border-color: #333;
+  }
+  .theme-swatch span {
+    font-size: 9px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+
+  .font-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .font-option {
+    border-radius: 9px;
+    padding: 10px 12px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .font-option .check {
+    opacity: 0;
+    font-size: 13px;
+  }
+  .font-option.selected .check {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+  <div id="mini">
+    <div class="controls">
+      <button class="icon-btn" id="settingsBtn" title="Settings">&#9881;</button>
+      <button class="icon-btn" id="closeBtn" title="Hide">&times;</button>
+    </div>
+    <div id="phrase">Loading...</div>
+    <button class="nav-arrow left" id="prevBtn" title="Previous">&#10094;</button>
+    <button class="nav-arrow right" id="nextBtn" title="Next">&#10095;</button>
+  </div>
+
+  <div id="full">
+    <div class="full-header">
+      <h1>Ember</h1>
+      <button class="back-btn" id="backBtn" title="Back">
+        <span class="back-arrow">&#8617;</span> Back
+      </button>
+    </div>
+
+    <section id="themeSection">
+      <h2>Theme</h2>
+      <div class="theme-grid" id="themeGrid"></div>
+    </section>
+
+    <section id="fontSection">
+      <h2>Font</h2>
+      <div class="font-grid" id="fontGrid"></div>
+    </section>
+
+    <section id="phraseSection">
+      <h2>Phrase Library</h2>
+      <div class="row">
+        <input type="text" id="newPhrase" placeholder="Type a motivational phrase..." />
+        <button class="action" id="addBtn">Add</button>
+      </div>
+      <div id="list"></div>
+    </section>
+
+    <section id="settingsSection">
+      <h2>Reminder Settings</h2>
+      <div class="settings-row">
+        <div class="settings-col">
+          <label>Playback</label>
+          <select id="playModeSelect">
+            <option value="shuffle">Shuffle</option>
+            <option value="sequential">Sequential</option>
+          </select>
+        </div>
+        <div class="settings-col">
+          <label>Popup reminder every</label>
+          <select id="freqSelect">
+            <option value="5">5 min</option>
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="60">1 hr</option>
+            <option value="120">2 hr</option>
+            <option value="240">4 hr</option>
+          </select>
+        </div>
+        <div class="settings-col">
+          <label>Widget phrase cycles every</label>
+          <select id="cycleSelect">
+            <option value="10">10 sec</option>
+            <option value="20">20 sec</option>
+            <option value="60">1 min</option>
+            <option value="300">5 min</option>
+          </select>
+        </div>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="popupsEnabled" />
+        <label style="margin:0">Enable popup reminders</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="pinned" />
+        <label style="margin:0">Keep widget always on top</label>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
